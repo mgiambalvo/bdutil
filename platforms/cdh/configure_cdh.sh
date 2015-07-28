@@ -30,6 +30,44 @@ if dpkg -s hive-metastore > /dev/null; then
       --clobber
 fi
 
+# Configure Impala 
+if dpkg -s impala > /dev/null; then
+  cp ${HADOOP_CONF_DIR}/core-site.xml /etc/impala/conf
+  cp ${HADOOP_CONF_DIR}/hdfs-site.xml /etc/impala/conf
+
+  # Configure Hive metastore
+  bdconfig merge_configurations \
+      --configuration_file /etc/impala/conf/hive-site.xml \
+      --source_configuration_file cdh-hive-site-template.xml \
+      --resolve_environment_variables \
+      --clobber
+
+  bdconfig set_property \
+      --configuration_file /etc/impala/conf/hive-site.xml \
+      --name 'hive.metastore.uris' \
+      --value "thrift://${MASTER_HOSTNAME}:9083" \
+      --clobber
+
+  # Configure short-circuit reads
+  bdconfig set_property \
+      --configuration_file /etc/impala/conf/hdfs-site.xml \
+      --name 'dfs.client.read.shortcircuit' \
+      --value "true" \
+      --clobber
+
+  bdconfig set_property \
+      --configuration_file /etc/impala/conf/hdfs-site.xml \
+      --name 'dfs.domain.socket.path' \
+      --value "/var/run/hdfs-sockets/dn" \
+      --clobber
+
+  bdconfig set_property \
+      --configuration_file /etc/impala/conf/hdfs-site.xml \
+      --name 'dfs.client.file-block-storage-locations.timeout.millis' \
+      --value "10000" \
+      --clobber
+fi
+
 # Configure Hue
 if dpkg -s hue > /dev/null; then
   # Replace localhost with hostname.

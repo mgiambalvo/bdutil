@@ -22,9 +22,9 @@ CDH_VERSION=5
 # Components are installed / started in the order they are listed.
 MASTER_COMPONENTS="hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode
     hadoop-yarn-resourcemanager hadoop-mapreduce-historyserver
-    hive-metastore hive-server2 hive pig oozie hue"
+    hive-metastore pig oozie hue impala-shell"
 DATANODE_COMPONENTS="hadoop-hdfs-datanode hadoop-yarn-nodemanager
-    hadoop-mapreduce"
+    hadoop-mapreduce impala impala-server impala-state-store impala-catalog"
 
 # Install JDK with compiler/tools instead of just the minimal JRE.
 INSTALL_JDK_DEVEL=true
@@ -40,6 +40,7 @@ HADOOP_INSTALL_DIR='/usr/lib/hadoop'
 DEFAULT_FS='hdfs'
 GCS_CACHE_CLEANER_USER='hdfs'
 UPLOAD_FILES+=('platforms/cdh/cdh-core-template.xml')
+UPLOAD_FILES+=('platforms/cdh/cdh-hive-site-template.xml')
 USE_ATTACHED_PDS=true
 
 COMMAND_GROUPS+=(
