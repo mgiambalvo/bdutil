@@ -22,7 +22,7 @@ CDH_VERSION=5
 # Components are installed / started in the order they are listed.
 MASTER_COMPONENTS="hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode
     hadoop-yarn-resourcemanager hadoop-mapreduce-historyserver
-    hive-metastore pig oozie hue impala-shell"
+    hive-metastore hive-server2 hive pig oozie hue impala-shell"
 DATANODE_COMPONENTS="hadoop-hdfs-datanode hadoop-yarn-nodemanager
     hadoop-mapreduce impala impala-server impala-state-store impala-catalog"
 

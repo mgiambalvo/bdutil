@@ -33,15 +33,9 @@ fi
 # Configure Impala 
 if dpkg -s impala > /dev/null; then
   cp ${HADOOP_CONF_DIR}/core-site.xml /etc/impala/conf
-  cp ${HADOOP_CONF_DIR}/hdfs-site.xml /etc/impala/conf
 
   # Configure Hive metastore
-  bdconfig merge_configurations \
-      --configuration_file /etc/impala/conf/hive-site.xml \
-      --source_configuration_file cdh-hive-site-template.xml \
-      --resolve_environment_variables \
-      --clobber
-
+  cp cdh-hive-site-template.xml /etc/impala/conf/hive-site.xml
   bdconfig set_property \
       --configuration_file /etc/impala/conf/hive-site.xml \
       --name 'hive.metastore.uris' \
@@ -50,22 +44,52 @@ if dpkg -s impala > /dev/null; then
 
   # Configure short-circuit reads
   bdconfig set_property \
-      --configuration_file /etc/impala/conf/hdfs-site.xml \
+      --configuration_file ${HADOOP_CONF_DIR}/hdfs-site.xml \
       --name 'dfs.client.read.shortcircuit' \
       --value "true" \
       --clobber
 
   bdconfig set_property \
-      --configuration_file /etc/impala/conf/hdfs-site.xml \
+      --configuration_file ${HADOOP_CONF_DIR}/hdfs-site.xml \
       --name 'dfs.domain.socket.path' \
-      --value "/var/run/hdfs-sockets/dn" \
+      --value "/var/run/hadoop-hdfs/dn" \
       --clobber
 
   bdconfig set_property \
-      --configuration_file /etc/impala/conf/hdfs-site.xml \
+      --configuration_file ${HADOOP_CONF_DIR}/hdfs-site.xml \
       --name 'dfs.client.file-block-storage-locations.timeout.millis' \
       --value "10000" \
       --clobber
+
+  bdconfig set_property \
+      --configuration_file ${HADOOP_CONF_DIR}/hdfs-site.xml \
+      --name 'dfs.datanode.hdfs-blocks-metadata.enabled' \
+      --value "true" \
+      --clobber
+  cp ${HADOOP_CONF_DIR}/hdfs-site.xml /etc/impala/conf
+
+cat << EOF > /etc/impala/conf/hbase-site.xml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>hbase.client.connection.impl</name>
+    <value>com.google.cloud.bigtable.hbase1_0.BigtableConnection</value>
+  </property>
+  <property>
+    <name>google.bigtable.cluster.name</name>
+    <value>impala</value>
+  </property>
+  <property>
+    <name>google.bigtable.project.id</name>
+    <value>graphite-impala-demo</value>
+  </property>
+  <property>
+    <name>google.bigtable.zone.name</name>
+    <value>us-central1-c</value>
+  </property>
+</configuration>
+EOF
 fi
 
 # Configure Hue
